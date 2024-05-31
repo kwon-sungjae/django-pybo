@@ -4,7 +4,7 @@ from .forms import MessageForm
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
-@login_required
+@login_required(login_url='common:login')
 def chat_room(request):
     room = get_object_or_404(ChatRoom, name='test')
     messages = Message.objects.filter(room=room).order_by('timestamp')
@@ -24,7 +24,7 @@ def chat_room(request):
     }
     return render(request, 'chat/chat_room.html', context)
 
-@login_required
+@login_required(login_url='common:login')
 def get_messages(request):
     room = get_object_or_404(ChatRoom, name='test')
     messages = Message.objects.filter(room=room).order_by('timestamp')
