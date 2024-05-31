@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <strong>AI 챗봇과 대화하기</strong>
+        </div>
+        <div class="card-body">
+            <div id="chat-log" class="form-control mb-3" style="height: 300px; overflow-y: scroll; background-color: #f0f0f0;">
+            </div>
+            <div class="input-group">
+                <input id="chat-message-input" type="text" class="form-control" placeholder="Type a message">
+                <div class="input-group-append">
+                    <button id="chat-message-submit" class="btn btn-primary" type="button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // 서버로부터 메시지를 가져오는 함수
+    function fetchMessages() {
+        // AJAX를 사용하여 서버로 GET 요청을 보냄
+        $.ajax({
+            // 서버에서 메시지를 가져오는 URL을 지정
+            url: "{% url 'chat:get_messages' %}",  // app_name을 포함한 URL 패턴 참조
+            type: 'GET',
+            // AJAX 요청이 성공했을 때 실행되는 함수
+            success: function(response) {
+                // 서버에서 받은 메시지를 순회하면서 채팅 로그에 추가
+                response.messages.forEach(function(message) {
+                    // 각 메시지에 고유한 클래스를 부여하여 스타일을 적용
+                    var messageDiv = $('<div class="message"></div>');
+                    messageDiv.html('<strong>' + message.user + ':</strong> ' + message.content);
+                    $('#chat-log').append(messageDiv);
+                });
+                // 채팅 로그를 스크롤하여 최신 메시지를 표시
+                $('#chat-log').scrollTop($('#chat-log')[0].scrollHeight);
+            }
+        });
+    }
+
+    // 문서가 준비되면 실행되는 함수
+    $(document).ready(function() {
+        // 페이지가 로드될 때 서버로부터 메시지를 가져옴
+        fetchMessages();
+        
+        // 메시지 전송 버튼을 클릭했을 때 실행되는 함수
+        $('#chat-message-submit').on('click', function() {
+            // 입력된 메시지 가져오기
+            var messageInput = $('#chat-message-input');
+            var message = messageInput.val();
+
+            // 입력된 메시지가 빈 문자열이면 함수 종료
+            if (message.trim() === '') {
+                return;
+            }
+
+            // AJAX를 사용하여 서버로 POST 요청을 보냄
+            $.ajax({
+                // 메시지를 서버에 전송하는 URL 지정 (현재 페이지에 POST 요청을 보냄)
+                url: '',
+                type: 'POST',
+                // 전송할 데이터 설정 (메시지 내용과 CSRF 토큰)
+                data: {
+                    'content': message,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                // 요청이 성공했을 때 실행되는 함수
+                success: function(response) {
+                    // 입력 필드 비우기
+                    messageInput.val('');
+                    // 서버로부터 메시지 다시 가져오기 (업데이트된 메시지를 반영하기 위해)
+                    fetchMessages();
+                },
+                // 요청이 실패했을 때 실행되는 함수
+                error: function(xhr, errmsg, err) {
+                    // 콘솔에 에러 메시지 출력
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+            });
+        });
+
+        // 입력 필드에서 엔터 키를 눌렀을 때 실행되는 함수
+        $('#chat-message-input').on('keypress', function(e) {
+            // 엔터 키를 눌렀는지 확인
+            if (e.which === 13) {
+                // 메시지 전송 버튼을 클릭한 것처럼 동작
+                $('#chat-message-submit').click();
+                // 기본 동작(폼 제출) 방지
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock %}
