@@ -26,10 +26,6 @@ SECRET_KEY = 'django-insecure-2bn+gim_l%j-%3_k^@8=t#9d)tqmelo65ljsp=lf2$lz_*064j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# 장고 서버를 외부에서 실행하기 위해 호스트 등록
-ALLOWED_HOSTS = ['54.180.235.13']
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -142,8 +138,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
-
-SITE_ID = 1  # 또는 현재 사용하고 있는 사이트의 ID로 변경
 
 LOGIN_REDIRECT_URL = '/'  # 로그인 후 리디렉션할 URL
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'  # 로그아웃 후 리디렉션할 URL
